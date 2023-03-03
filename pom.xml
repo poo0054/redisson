@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.redisson</groupId>
@@ -12,8 +13,8 @@
     <url>http://redisson.org</url>
 
     <organization>
-       <name>Redisson</name>
-       <url>https://redisson.org/</url>
+        <name>Redisson</name>
+        <url>https://redisson.org/</url>
     </organization>
 
     <properties>
@@ -54,15 +55,6 @@
 
     <modules>
         <module>redisson</module>
-        <module>redisson-all</module>
-        <module>redisson-tomcat</module>
-        <module>redisson-spring-data</module>
-        <module>redisson-spring-boot-starter</module>
-        <module>redisson-mybatis</module>
-        <module>redisson-hibernate</module>
-        <module>redisson-helidon</module>
-        <module>redisson-quarkus</module>
-        <module>redisson-micronaut</module>
     </modules>
 
     <profiles>
@@ -75,26 +67,27 @@
                         <artifactId>maven-source-plugin</artifactId>
                         <version>3.2.1</version>
                         <executions>
-                          <execution>
-                            <id>attach-sources</id>
-                            <goals>
-                              <goal>jar-no-fork</goal>
-                            </goals>
-                            <configuration>
-                              <archive>
-                                <manifest>
-                                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                                  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                                </manifest>
-                                <manifestEntries>
-                                  <Implementation-Build>${implementation.build}</Implementation-Build>
-                                  <Implementation-Build-Date>${maven.build.timestamp}</Implementation-Build-Date>
-                                  <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
-                                  <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
-                                </manifestEntries>
-                              </archive>
-                            </configuration>
-                          </execution>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                                <configuration>
+                                    <archive>
+                                        <manifest>
+                                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                                        </manifest>
+                                        <manifestEntries>
+                                            <Implementation-Build>${implementation.build}</Implementation-Build>
+                                            <Implementation-Build-Date>${maven.build.timestamp}
+                                            </Implementation-Build-Date>
+                                            <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
+                                            <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
+                                        </manifestEntries>
+                                    </archive>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
@@ -130,6 +123,13 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.2.13.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>3.23.1</version>
@@ -142,16 +142,16 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-               <groupId>org.jmockit</groupId>
-               <artifactId>jmockit</artifactId>
-               <version>1.49</version>
-               <scope>test</scope>
+                <groupId>org.jmockit</groupId>
+                <artifactId>jmockit</artifactId>
+                <version>1.49</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
-               <groupId>org.jooq</groupId>
-               <artifactId>joor-java-8</artifactId>
-               <version>0.9.14</version>
-               <scope>test</scope>
+                <groupId>org.jooq</groupId>
+                <artifactId>joor-java-8</artifactId>
+                <version>0.9.14</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -196,160 +196,160 @@
         </dependencies>
     </dependencyManagement>
 
-  <build>
-      <directory>target</directory>
-      <outputDirectory>${basedir}/target/classes</outputDirectory>
-      <finalName>${project.artifactId}-${project.version}</finalName>
-      <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
-      <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-      <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
-      
-      <plugins>
-          <plugin>
-         	<groupId>org.sonatype.plugins</groupId>
-         	<artifactId>nexus-staging-maven-plugin</artifactId>
-         	<version>1.6.13</version>
-         	<extensions>true</extensions>
+    <build>
+        <directory>target</directory>
+        <outputDirectory>${basedir}/target/classes</outputDirectory>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+        <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
+        <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+        <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.13</version>
+                <extensions>true</extensions>
                 <configuration>
                     <serverId>ossrepo</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                     <stagingProgressTimeoutMinutes>15</stagingProgressTimeoutMinutes>
- 		</configuration>
-          </plugin>
+                </configuration>
+            </plugin>
 
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-release-plugin</artifactId>
-            <version>2.5.3</version>
-            <configuration>
-                <autoVersionSubmodules>true</autoVersionSubmodules>
-                <useReleaseProfile>true</useReleaseProfile>
-                <releaseProfiles>release</releaseProfiles>
-                <goals>deploy</goals>
-            </configuration>
-          </plugin>
-
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-enforcer-plugin</artifactId>
-              <version>3.0.0</version>
-              <executions>
-                  <execution>
-                      <id>enforce-maven</id>
-                      <goals>
-                          <goal>enforce</goal>
-                      </goals>
-                      <configuration>
-                          <rules>
-                              <requireMavenVersion>
-                                  <version>3.0.5</version>
-                              </requireMavenVersion>
-                          </rules>
-                      </configuration>
-                  </execution>
-              </executions>
-          </plugin>
-      </plugins>
-
-      <pluginManagement>
-        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Build-Time>${maven.build.timestamp}</Build-Time>
-                        </manifestEntries>
-                    </archive>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>true</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
                 </configuration>
             </plugin>
 
-<!--
             <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>3.1.7</version>
-                <configuration>
-                    <effort>Max</effort>
-                    <threshold>High</threshold>
-                    <failOnError>true</failOnError>
-                    <plugins>
-                        <plugin>
-                            <groupId>com.h3xstream.findsecbugs</groupId>
-                            <artifactId>findsecbugs-plugin</artifactId>
-                            <version>1.8.0</version>
-                        </plugin>
-                    </plugins>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
+                        <id>enforce-maven</id>
                         <goals>
-                            <goal>check</goal>
+                            <goal>enforce</goal>
                         </goals>
-                        <phase>validate</phase>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.0.5</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>3.3.2</version>
-                <configuration>
-                    <cveValidForHours>12</cveValidForHours>
-                    <failBuildOnCVSS>5</failBuildOnCVSS>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
--->
-
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <source>${source.version}</source>
-                    <target>${source.version}</target>
-                    <release>${release.version}</release>
-                    <optimize>true</optimize>
-                    <showDeprecation>true</showDeprecation>
-                </configuration>
-            </plugin>
-
-            <plugin>
-         	<groupId>org.apache.maven.plugins</groupId>
-         	<artifactId>maven-javadoc-plugin</artifactId>
-         	<version>3.4.0</version>
-         	<executions>
-                   <execution>
-                     <id>attach-javadocs</id>
-                     <goals>
-                         <goal>jar</goal>
-                     </goals>
-                   </execution>
-         	</executions>
-                <configuration>
-                    <source>${javadoc.version}</source>
-                    <level>public</level>
-                    <doclint>none</doclint>
-                    <quiet>true</quiet>
-                </configuration>
-            </plugin>
-
         </plugins>
-      </pluginManagement>
-  </build>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.2.0</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Build-Time>${maven.build.timestamp}</Build-Time>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <!--
+                            <plugin>
+                                <groupId>com.github.spotbugs</groupId>
+                                <artifactId>spotbugs-maven-plugin</artifactId>
+                                <version>3.1.7</version>
+                                <configuration>
+                                    <effort>Max</effort>
+                                    <threshold>High</threshold>
+                                    <failOnError>true</failOnError>
+                                    <plugins>
+                                        <plugin>
+                                            <groupId>com.h3xstream.findsecbugs</groupId>
+                                            <artifactId>findsecbugs-plugin</artifactId>
+                                            <version>1.8.0</version>
+                                        </plugin>
+                                    </plugins>
+                                </configuration>
+                                <executions>
+                                    <execution>
+                                        <goals>
+                                            <goal>check</goal>
+                                        </goals>
+                                        <phase>validate</phase>
+                                    </execution>
+                                </executions>
+                            </plugin>
+
+                            <plugin>
+                                <groupId>org.owasp</groupId>
+                                <artifactId>dependency-check-maven</artifactId>
+                                <version>3.3.2</version>
+                                <configuration>
+                                    <cveValidForHours>12</cveValidForHours>
+                                    <failBuildOnCVSS>5</failBuildOnCVSS>
+                                </configuration>
+                                <executions>
+                                    <execution>
+                                        <goals>
+                                            <goal>check</goal>
+                                        </goals>
+                                    </execution>
+                                </executions>
+                            </plugin>
+                -->
+
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.6.1</version>
+                    <configuration>
+                        <source>${source.version}</source>
+                        <target>${source.version}</target>
+                        <!--                        <release>${release.version}</release>-->
+                        <optimize>true</optimize>
+                        <showDeprecation>true</showDeprecation>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.4.0</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <source>${javadoc.version}</source>
+                        <level>public</level>
+                        <doclint>none</doclint>
+                        <quiet>true</quiet>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
