@@ -12,13 +12,16 @@ public class RedissonBaseTest extends BaseTest {
 
     @Test
     void test() {
-        RLock asd = redisson.getLock("asd");
+        RLock lock = redisson.getLock("lock");
         try {
-            asd.lock();
+            Thread.sleep(1000);
+            lock.tryLock();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            asd.unlock();
+            lock.unlock();
         }
     }
+
+
 }
