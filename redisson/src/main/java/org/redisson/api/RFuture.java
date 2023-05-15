@@ -16,17 +16,17 @@
 package org.redisson.api;
 
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 /**
  * Represents the result of an asynchronous computation
- * 
- * @author Nikita Koksharov
  *
  * @param <V> type of value
+ * @author Nikita Koksharov
  */
-public interface RFuture<V> extends java.util.concurrent.Future<V>, CompletionStage<V> {
+public interface RFuture<V> extends Future<V>, CompletionStage<V> {
 
     /**
      * Use snippet below instead.
@@ -34,7 +34,7 @@ public interface RFuture<V> extends java.util.concurrent.Future<V>, CompletionSt
      * <pre>
      *                 return toCompletableFuture().isDone() && !toCompletableFuture().isCompletedExceptionally();
      * </pre>
-     * 
+     *
      * @return {@code true} if future was completed successfully
      */
     @Deprecated

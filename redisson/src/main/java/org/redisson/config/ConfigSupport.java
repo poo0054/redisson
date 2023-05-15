@@ -46,9 +46,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author Nikita Koksharov
- *
  */
 public class ConfigSupport {
 
@@ -180,6 +178,7 @@ public class ConfigSupport {
     }
 
     public static ConnectionManager createConnectionManager(Config configCopy) {
+        //uuid
         UUID id = UUID.randomUUID();
 
         if (configCopy.getMasterSlaveServersConfig() != null) {
@@ -188,6 +187,7 @@ public class ConfigSupport {
         } else if (configCopy.getSingleServerConfig() != null) {
             //单机
             validate(configCopy.getSingleServerConfig());
+            //就是 MasterSlaveConnectionManager 的一个实现类
             return new SingleConnectionManager(configCopy.getSingleServerConfig(), configCopy, id);
         } else if (configCopy.getSentinelServersConfig() != null) {
             validate(configCopy.getSentinelServersConfig());

@@ -62,11 +62,12 @@ public class Redisson implements RedissonClient {
 
     protected Redisson(Config config) {
         this.config = config;
+        //创建新的config
         Config configCopy = new Config(config);
-
+        //链接
         connectionManager = ConfigSupport.createConnectionManager(configCopy);
         RedissonObjectBuilder objectBuilder = null;
-        //配置选项指示是否启用了 Redisson 引用功能。
+        //配置选项指示是否启用了 Redisson 引用功能。 默认true
         if (config.isReferenceEnabled()) {
             objectBuilder = new RedissonObjectBuilder(this);
         }

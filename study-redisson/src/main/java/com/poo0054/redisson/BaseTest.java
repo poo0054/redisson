@@ -1,8 +1,7 @@
 package com.poo0054.redisson;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.After;
+import org.junit.Before;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -14,13 +13,18 @@ public abstract class BaseTest {
 
     protected static RedissonClient redisson;
 
-    @BeforeAll
-    public static void beforeClass() {
+    public static RedissonClient createInstance() {
+        Config config = createConfig();
+        return Redisson.create(config);
+    }
+
+    @Before
+    public void beforeClass() {
         redisson = createInstance();
     }
 
-    @AfterAll
-    public static void afterClass() {
+    @After
+    public void afterClass() {
         redisson.shutdown();
     }
 
@@ -44,12 +48,7 @@ public abstract class BaseTest {
         return config;
     }
 
-    public static RedissonClient createInstance() {
-        Config config = createConfig();
-        return Redisson.create(config);
-    }
 
-    @BeforeEach
     public void before() {
         if (flushBetweenTests()) {
             redisson.getKeys().flushall();

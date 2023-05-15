@@ -45,6 +45,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class RedissonLock extends RedissonBaseLock {
 
+    /**
+     * 看门狗时间
+     */
     protected long internalLockLeaseTime;
 
     protected final LockPubSub pubSub;
@@ -187,9 +190,11 @@ public class RedissonLock extends RedissonBaseLock {
      */
     private <T> RFuture<Long> tryAcquireAsync(long waitTime, long leaseTime, TimeUnit unit, long threadId) {
         RFuture<Long> ttlRemainingFuture;
+        //锁时间有值
         if (leaseTime > 0) {
             ttlRemainingFuture = tryLockInnerAsync(waitTime, leaseTime, unit, threadId, RedisCommands.EVAL_LONG);
         } else {
+            //没有设置最大时间
             ttlRemainingFuture = tryLockInnerAsync(waitTime, internalLockLeaseTime,
                     TimeUnit.MILLISECONDS, threadId, RedisCommands.EVAL_LONG);
         }
@@ -226,9 +231,13 @@ public class RedissonLock extends RedissonBaseLock {
 
     @Override
     public boolean tryLock(long waitTime, long leaseTime, TimeUnit unit) throws InterruptedException {
+        //等待时间
         long time = unit.toMillis(waitTime);
+        //当前时间
         long current = System.currentTimeMillis();
+        //当前线程id
         long threadId = Thread.currentThread().getId();
+
         Long ttl = tryAcquire(waitTime, leaseTime, unit, threadId);
         // lock acquired
         if (ttl == null) {

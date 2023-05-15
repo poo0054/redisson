@@ -55,6 +55,7 @@
 
     <modules>
         <module>redisson</module>
+        <module>study-redisson</module>
     </modules>
 
     <profiles>
@@ -192,6 +193,12 @@
                 <version>2.14.1</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>3.19.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

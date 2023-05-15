@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2013-2022 Nikita Koksharov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,51 +46,14 @@ import java.util.concurrent.locks.Condition;
  */
 public abstract class RedissonBaseLock extends RedissonExpirable implements RLock {
 
-    public static class ExpirationEntry {
-
-        private final Map<Long, Integer> threadIds = new LinkedHashMap<>();
-        private volatile Timeout timeout;
-
-        public ExpirationEntry() {
-            super();
-        }
-
-        public synchronized void addThreadId(long threadId) {
-            threadIds.compute(threadId, (t, counter) -> {
-                counter = Optional.ofNullable(counter).orElse(0);
-                counter++;
-                return counter;
-            });
-        }
-        public synchronized boolean hasNoThreads() {
-            return threadIds.isEmpty();
-        }
-        public synchronized Long getFirstThreadId() {
-            if (threadIds.isEmpty()) {
-                return null;
-            }
-            return threadIds.keySet().iterator().next();
-        }
-        public synchronized void removeThreadId(long threadId) {
-            threadIds.compute(threadId, (t, counter) -> {
-                if (counter == null) {
-                    return null;
-                }
-                counter--;
-                if (counter == 0) {
-                    return null;
-                }
-                return counter;
-            });
-        }
-
-        public void setTimeout(Timeout timeout) {
-            this.timeout = timeout;
-        }
-        public Timeout getTimeout() {
-            return timeout;
-        }
-
+    public RedissonBaseLock(CommandAsyncExecutor commandExecutor, String name) {
+        super(commandExecutor, name);
+        this.commandExecutor = commandExecutor;
+        //uuid
+        this.id = commandExecutor.getConnectionManager().getId();
+        this.internalLockLeaseTime = commandExecutor.getConnectionManager().getCfg().getLockWatchdogTimeout();
+        //uuid : name
+        this.entryName = id + ":" + name;
     }
 
     private static final Logger log = LoggerFactory.getLogger(RedissonBaseLock.class);
@@ -103,28 +66,12 @@ public abstract class RedissonBaseLock extends RedissonExpirable implements RLoc
 
     final CommandAsyncExecutor commandExecutor;
 
-    public RedissonBaseLock(CommandAsyncExecutor commandExecutor, String name) {
-        super(commandExecutor, name);
-        this.commandExecutor = commandExecutor;
-        this.id = commandExecutor.getConnectionManager().getId();
-        this.internalLockLeaseTime = commandExecutor.getConnectionManager().getCfg().getLockWatchdogTimeout();
-        this.entryName = id + ":" + name;
-    }
-
-    protected String getEntryName() {
-        return entryName;
-    }
-
-    protected String getLockName(long threadId) {
-        return id + ":" + threadId;
-    }
-
     private void renewExpiration() {
         ExpirationEntry ee = EXPIRATION_RENEWAL_MAP.get(getEntryName());
         if (ee == null) {
             return;
         }
-        
+
         Timeout task = commandExecutor.getConnectionManager().newTimeout(new TimerTask() {
             @Override
             public void run(Timeout timeout) throws Exception {
@@ -136,7 +83,7 @@ public abstract class RedissonBaseLock extends RedissonExpirable implements RLoc
                 if (threadId == null) {
                     return;
                 }
-                
+
                 CompletionStage<Boolean> future = renewExpirationAsync(threadId);
                 future.whenComplete((res, e) -> {
                     if (e != null) {
@@ -144,7 +91,7 @@ public abstract class RedissonBaseLock extends RedissonExpirable implements RLoc
                         EXPIRATION_RENEWAL_MAP.remove(getEntryName());
                         return;
                     }
-                    
+
                     if (res) {
                         // reschedule itself
                         renewExpiration();
@@ -154,10 +101,37 @@ public abstract class RedissonBaseLock extends RedissonExpirable implements RLoc
                 });
             }
         }, internalLockLeaseTime / 3, TimeUnit.MILLISECONDS);
-        
+
         ee.setTimeout(task);
     }
-    
+
+    protected String getEntryName() {
+        return entryName;
+    }
+
+    protected String getLockName(long threadId) {
+        return id + ":" + threadId;
+    }
+
+    protected void cancelExpirationRenewal(Long threadId) {
+        ExpirationEntry task = EXPIRATION_RENEWAL_MAP.get(getEntryName());
+        if (task == null) {
+            return;
+        }
+
+        if (threadId != null) {
+            task.removeThreadId(threadId);
+        }
+
+        if (threadId == null || task.hasNoThreads()) {
+            Timeout timeout = task.getTimeout();
+            if (timeout != null) {
+                timeout.cancel();
+            }
+            EXPIRATION_RENEWAL_MAP.remove(getEntryName());
+        }
+    }
+
     protected void scheduleExpirationRenewal(long threadId) {
         ExpirationEntry entry = new ExpirationEntry();
         ExpirationEntry oldEntry = EXPIRATION_RENEWAL_MAP.putIfAbsent(getEntryName(), entry);
@@ -186,23 +160,15 @@ public abstract class RedissonBaseLock extends RedissonExpirable implements RLoc
                 internalLockLeaseTime, getLockName(threadId));
     }
 
-    protected void cancelExpirationRenewal(Long threadId) {
-        ExpirationEntry task = EXPIRATION_RENEWAL_MAP.get(getEntryName());
-        if (task == null) {
-            return;
-        }
-        
-        if (threadId != null) {
-            task.removeThreadId(threadId);
+    private CommandBatchService createCommandBatchService(int availableSlaves) {
+        if (commandExecutor instanceof CommandBatchService) {
+            return (CommandBatchService) commandExecutor;
         }
 
-        if (threadId == null || task.hasNoThreads()) {
-            Timeout timeout = task.getTimeout();
-            if (timeout != null) {
-                timeout.cancel();
-            }
-            EXPIRATION_RENEWAL_MAP.remove(getEntryName());
-        }
+        BatchOptions options = BatchOptions.defaults()
+                .syncSlaves(availableSlaves, 1, TimeUnit.SECONDS);
+
+        return new CommandBatchService(commandExecutor, options);
     }
 
     protected <T> RFuture<T> evalWriteAsync(String key, Codec codec, RedisCommand<T> evalCommandType, String script, List<Object> keys, Object... params) {
@@ -239,15 +205,55 @@ public abstract class RedissonBaseLock extends RedissonExpirable implements RLoc
         return new CompletableFutureWrapper<>(resFuture);
     }
 
-    private CommandBatchService createCommandBatchService(int availableSlaves) {
-        if (commandExecutor instanceof CommandBatchService) {
-            return (CommandBatchService) commandExecutor;
+    public static class ExpirationEntry {
+
+        private final Map<Long, Integer> threadIds = new LinkedHashMap<>();
+        private volatile Timeout timeout;
+
+        public ExpirationEntry() {
+            super();
         }
 
-        BatchOptions options = BatchOptions.defaults()
-                                            .syncSlaves(availableSlaves, 1, TimeUnit.SECONDS);
+        public synchronized void addThreadId(long threadId) {
+            threadIds.compute(threadId, (t, counter) -> {
+                counter = Optional.ofNullable(counter).orElse(0);
+                counter++;
+                return counter;
+            });
+        }
 
-        return new CommandBatchService(commandExecutor, options);
+        public synchronized boolean hasNoThreads() {
+            return threadIds.isEmpty();
+        }
+
+        public synchronized Long getFirstThreadId() {
+            if (threadIds.isEmpty()) {
+                return null;
+            }
+            return threadIds.keySet().iterator().next();
+        }
+
+        public synchronized void removeThreadId(long threadId) {
+            threadIds.compute(threadId, (t, counter) -> {
+                if (counter == null) {
+                    return null;
+                }
+                counter--;
+                if (counter == 0) {
+                    return null;
+                }
+                return counter;
+            });
+        }
+
+        public void setTimeout(Timeout timeout) {
+            this.timeout = timeout;
+        }
+
+        public Timeout getTimeout() {
+            return timeout;
+        }
+
     }
 
     protected void acquireFailed(long waitTime, TimeUnit unit, long threadId) {
@@ -278,7 +284,7 @@ public abstract class RedissonBaseLock extends RedissonExpirable implements RLoc
     public boolean isLocked() {
         return isExists();
     }
-    
+
     @Override
     public RFuture<Boolean> isLockedAsync() {
         return isExistsAsync();
@@ -296,11 +302,11 @@ public abstract class RedissonBaseLock extends RedissonExpirable implements RLoc
     }
 
     private static final RedisCommand<Integer> HGET = new RedisCommand<Integer>("HGET", new MapValueDecoder(), new IntegerReplayConvertor(0));
-    
+
     public RFuture<Integer> getHoldCountAsync() {
         return commandExecutor.writeAsync(getRawName(), LongCodec.INSTANCE, HGET, getRawName(), getLockName(Thread.currentThread().getId()));
     }
-    
+
     @Override
     public int getHoldCount() {
         return get(getHoldCountAsync());
