@@ -172,6 +172,7 @@ public abstract class RedissonBaseLock extends RedissonExpirable implements RLoc
     }
 
     protected <T> RFuture<T> evalWriteAsync(String key, Codec codec, RedisCommand<T> evalCommandType, String script, List<Object> keys, Object... params) {
+        //获取集群
         MasterSlaveEntry entry = commandExecutor.getConnectionManager().getEntry(getRawName());
 
         CompletionStage<Map<String, String>> replicationFuture = CompletableFuture.completedFuture(Collections.emptyMap());

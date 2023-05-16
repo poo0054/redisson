@@ -237,15 +237,16 @@ public class RedissonLock extends RedissonBaseLock {
         long current = System.currentTimeMillis();
         //当前线程id
         long threadId = Thread.currentThread().getId();
-
+        //获取锁剩余时间
         Long ttl = tryAcquire(waitTime, leaseTime, unit, threadId);
-        // lock acquired
+        // lock acquired 已获得锁
         if (ttl == null) {
             return true;
         }
 
         time -= System.currentTimeMillis() - current;
         if (time <= 0) {
+            //锁失败
             acquireFailed(waitTime, unit, threadId);
             return false;
         }
