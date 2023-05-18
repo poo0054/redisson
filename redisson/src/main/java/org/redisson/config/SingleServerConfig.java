@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2013-2022 Nikita Koksharov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,15 +16,12 @@
 package org.redisson.config;
 
 /**
- * 
  * @author Nikita Koksharov
- *
  */
 public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
 
     /**
      * Redis server address
-     *
      */
     private String address;
 
@@ -35,7 +32,6 @@ public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
 
     /**
      * Redis subscription connection maximum pool size
-     *
      */
     private int subscriptionConnectionPoolSize = 50;
 
@@ -64,12 +60,19 @@ public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
 
     SingleServerConfig(SingleServerConfig config) {
         super(config);
+        //设置服务器地址。使用跟随格式 -- 主机: 端口
         setAddress(config.getAddress());
+        //Redis连接池大小 - 64
         setConnectionPoolSize(config.getConnectionPoolSize());
+        // Redis订阅-连接池大小限制 - 50
         setSubscriptionConnectionPoolSize(config.getSubscriptionConnectionPoolSize());
+        // 检查端点的DNS的间隔 (以毫秒为单位) - 5000
         setDnsMonitoringInterval(config.getDnsMonitoringInterval());
+        //最小空闲订阅连接金额。 - 1
         setSubscriptionConnectionMinimumIdleSize(config.getSubscriptionConnectionMinimumIdleSize());
+        // 最小空闲Redis连接量。
         setConnectionMinimumIdleSize(config.getConnectionMinimumIdleSize());
+        //数据库
         setDatabase(config.getDatabase());
     }
 
@@ -85,6 +88,7 @@ public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
         this.connectionPoolSize = connectionPoolSize;
         return this;
     }
+
     public int getConnectionPoolSize() {
         return connectionPoolSize;
     }
@@ -101,6 +105,7 @@ public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
         this.subscriptionConnectionPoolSize = subscriptionConnectionPoolSize;
         return this;
     }
+
     public int getSubscriptionConnectionPoolSize() {
         return subscriptionConnectionPoolSize;
     }
@@ -117,6 +122,7 @@ public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
         }
         return this;
     }
+
     public String getAddress() {
         return address;
     }
@@ -135,6 +141,7 @@ public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
         this.dnsMonitoringInterval = dnsMonitoringInterval;
         return this;
     }
+
     public long getDnsMonitoringInterval() {
         return dnsMonitoringInterval;
     }
@@ -143,15 +150,15 @@ public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
      * Minimum idle subscription connection amount.
      * <p>
      * Default is <code>1</code>
-     * 
+     *
      * @param subscriptionConnectionMinimumIdleSize - connections amount
      * @return config
-     *
      */
     public SingleServerConfig setSubscriptionConnectionMinimumIdleSize(int subscriptionConnectionMinimumIdleSize) {
         this.subscriptionConnectionMinimumIdleSize = subscriptionConnectionMinimumIdleSize;
         return this;
     }
+
     public int getSubscriptionConnectionMinimumIdleSize() {
         return subscriptionConnectionMinimumIdleSize;
     }
@@ -168,6 +175,7 @@ public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
         this.connectionMinimumIdleSize = connectionMinimumIdleSize;
         return this;
     }
+
     public int getConnectionMinimumIdleSize() {
         return connectionMinimumIdleSize;
     }
@@ -183,6 +191,7 @@ public class SingleServerConfig extends BaseConfig<SingleServerConfig> {
         this.database = database;
         return this;
     }
+
     public int getDatabase() {
         return database;
     }

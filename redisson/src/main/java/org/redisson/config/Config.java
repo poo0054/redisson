@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2013-2022 Nikita Koksharov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
  * Redisson configuration
  *
  * @author Nikita Koksharov
- *
  */
 public class Config {
 
@@ -80,7 +79,7 @@ public class Config {
 
     private int minCleanUpDelay = 5;
 
-    private int maxCleanUpDelay = 30*60;
+    private int maxCleanUpDelay = 30 * 60;
 
     private int cleanUpKeysAmount = 100;
 
@@ -96,35 +95,71 @@ public class Config {
     }
 
     public Config(Config oldConf) {
+        //Netty钩子应用于Netty引导和通道对象。
         setNettyHook(oldConf.getNettyHook());
+        //使用外部ExecutorService。ExecutorService处理RTopic、RRemoteService和RExecutorService任务的所有监听
         setExecutor(oldConf.getExecutor());
 
         if (oldConf.getCodec() == null) {
-            // use it by default
+            // use it by default 使用默认编解码器
             oldConf.setCodec(new Kryo5Codec());
         }
-
+//        Redis连接侦听器
         setConnectionListener(oldConf.getConnectionListener());
+        //是否使用线程的ClassLoader
         setUseThreadClassLoader(oldConf.isUseThreadClassLoader());
+        //定义清除过期条目的最小延迟 (以秒为单位)。 5
         setMinCleanUpDelay(oldConf.getMinCleanUpDelay());
+        //定义过期条目的清理过程的最大延迟 (以秒为单位)。 30 * 60
         setMaxCleanUpDelay(oldConf.getMaxCleanUpDelay());
+
+        //定义过期条目清理过程中每个操作删除的过期密钥数量。 100
         setCleanUpKeysAmount(oldConf.getCleanUpKeysAmount());
+        // 定义是否在Redis端使用Lua-script cache。大多数Redisson方法都是基于Lua脚本的，打开此设置可以提高此类方法的执行速度并节省网络流量。  - false
         setUseScriptCache(oldConf.isUseScriptCache());
+        //定义是按到达顺序保留PubSub消息处理还是同时处理消息。 - true
         setKeepPubSubOrder(oldConf.isKeepPubSubOrder());
+        /*
+        仅当获取了没有leaseTimeout参数定义的锁时，才使用此参数。如果watchdog没有将其扩展到下一个lockWatchdogTimeout时间间隔，则Lock在lockWatchdogTimeout后过期。
+        这样可以防止由于Redisson客户端崩溃或无法以适当方式释放锁时的任何其他原因而导致的无限锁定锁。
+        - 30 * 1000
+         */
         setLockWatchdogTimeout(oldConf.getLockWatchdogTimeout());
+        //定义是否在获取锁后检查同步的从机数量与实际的从机数量。  - true
         setCheckLockSyncedSlaves(oldConf.isCheckLockSyncedSlaves());
+        //Redisson使用的所有redis客户端之间共享的线程量。 -  32
         setNettyThreads(oldConf.getNettyThreads());
+        //RTopic对象、RRemoteService对象和RExecutorService任务的所有侦听器共享的线程量。 - 16
         setThreads(oldConf.getThreads());
+        //Redis数据编解码器。默认为Kryo5Codec编解码器 Kryo5Codec
         setCodec(oldConf.getCodec());
+        //用于启用Redisson引用功能的配置选项
         setReferenceEnabled(oldConf.isReferenceEnabled());
+        /*
+        使用外部EventLoopGroup。EventLoopGroup处理与Redis服务器绑定的所有Netty连接。
+        默认情况下，每个EventLoopGroup都创建自己的线程，每个Redisson客户端都创建自己的EventLoopGroup。
+        因此，如果同一JVM中有多个Redisson实例，则在它们之间共享一个EventLoopGroup将很有用。
+        只能使用io.net ty.channel.epoll.EpollEventLoopGroup、io.net ty.channel.kqueue.KQueueEventLoopGroup io.net ty.channel.nio.NioEventLoopGroup。
+        调用方负责关闭EventLoopGroup。
+         */
         setEventLoopGroup(oldConf.getEventLoopGroup());
+        //Use NIO
         setTransportMode(oldConf.getTransportMode());
+//        new SequentialDnsAddressResolverFactory()
+        //用于切换io.net ty.resolver.dns.DnsAddressResolverGroup实现。需要优化url解析时，切换为io.net ty.resolver.dns.RoundRobinDnsAddressResolverGroup。
         setAddressResolverGroupFactory(oldConf.getAddressResolverGroupFactory());
+        // TimeUnit.MINUTES.toMillis(10) 即 10 分钟
+        /*
+        Reliable Topic subscriber在timeout后到期，如果watchdog没有扩展到下一个timeout时间间隔。
+这防止了由于Redisson客户端崩溃或任何其他原因而导致的主题中存储消息的无限增长，当订阅者不能再消费消息时。
+         */
         setReliableTopicWatchdogTimeout(oldConf.getReliableTopicWatchdogTimeout());
 
+        //默认单机
         if (oldConf.getSingleServerConfig() != null) {
             setSingleServerConfig(new SingleServerConfig(oldConf.getSingleServerConfig()));
         }
+
         if (oldConf.getMasterSlaveServersConfig() != null) {
             setMasterSlaveServersConfig(new MasterSlaveServersConfig(oldConf.getMasterSlaveServersConfig()));
         }
@@ -161,11 +196,10 @@ public class Config {
     /**
      * Redis data codec. Default is Kryo5Codec codec
      *
-     * @see org.redisson.client.codec.Codec
-     * @see org.redisson.codec.Kryo5Codec
-     * 
      * @param codec object
      * @return config
+     * @see org.redisson.client.codec.Codec
+     * @see org.redisson.codec.Kryo5Codec
      */
     public Config setCodec(Codec codec) {
         this.codec = codec;
@@ -180,7 +214,7 @@ public class Config {
      * Config option indicate whether Redisson Reference feature is enabled.
      * <p>
      * Default value is <code>true</code>
-     * 
+     *
      * @return <code>true</code> if Redisson Reference feature enabled
      */
     public boolean isReferenceEnabled() {
@@ -191,7 +225,7 @@ public class Config {
      * Config option for enabling Redisson Reference feature
      * <p>
      * Default value is <code>true</code>
-     * 
+     *
      * @param redissonReferenceEnabled flag
      */
     public void setReferenceEnabled(boolean redissonReferenceEnabled) {
@@ -260,7 +294,7 @@ public class Config {
     /**
      * Returns the connection manager if supplied via
      * {@link #useCustomServers(ConnectionManager)}
-     * 
+     *
      * @return ConnectionManager
      */
     @Deprecated
@@ -270,10 +304,10 @@ public class Config {
 
     /**
      * This is an extension point to supply custom connection manager.
-     * 
-     * @see ReplicatedConnectionManager on how to implement a connection
-     *      manager.
+     *
      * @param connectionManager for supply
+     * @see ReplicatedConnectionManager on how to implement a connection
+     * manager.
      */
     @Deprecated
     public void useCustomServers(ConnectionManager connectionManager) {
@@ -290,6 +324,7 @@ public class Config {
     }
 
     SingleServerConfig useSingleServer(SingleServerConfig config) {
+        //当前为Single 其余不能有值
         checkClusterServersConfig();
         checkMasterSlaveServersConfig();
         checkSentinelServersConfig();
@@ -380,8 +415,8 @@ public class Config {
     }
 
     /**
-     * Threads amount shared across all listeners of <code>RTopic</code> object, 
-     * invocation handlers of <code>RRemoteService</code> object  
+     * Threads amount shared across all listeners of <code>RTopic</code> object,
+     * invocation handlers of <code>RRemoteService</code> object
      * and <code>RExecutorService</code> tasks.
      * <p>
      * Default is <code>16</code>.
@@ -463,13 +498,13 @@ public class Config {
     }
 
     /**
-     * Use external ExecutorService. ExecutorService processes 
-     * all listeners of <code>RTopic</code>, 
-     * <code>RRemoteService</code> invocation handlers  
+     * Use external ExecutorService. ExecutorService processes
+     * all listeners of <code>RTopic</code>,
+     * <code>RRemoteService</code> invocation handlers
      * and <code>RExecutorService</code> tasks.
      * <p>
      * The caller is responsible for closing the ExecutorService.
-     * 
+     *
      * @param executor object
      * @return config
      */
@@ -489,7 +524,7 @@ public class Config {
      * So if there are multiple Redisson instances in same JVM
      * it would be useful to share one EventLoopGroup among them.
      * <p>
-     * Only {@link io.netty.channel.epoll.EpollEventLoopGroup}, 
+     * Only {@link io.netty.channel.epoll.EpollEventLoopGroup},
      * {@link io.netty.channel.kqueue.KQueueEventLoopGroup}
      * {@link io.netty.channel.nio.NioEventLoopGroup} can be used.
      * <p>
@@ -536,7 +571,7 @@ public class Config {
      * Default is <code>true</code>.
      *
      * @param checkLockSyncedSlaves <code>true</code> if check required,
-     *                             <code>false</code> otherwise.
+     *                              <code>false</code> otherwise.
      * @return config
      */
     public Config setCheckLockSyncedSlaves(boolean checkLockSyncedSlaves) {
@@ -549,13 +584,13 @@ public class Config {
     }
 
     /**
-     * Defines whether to keep PubSub messages handling in arrival order 
-     * or handle messages concurrently. 
+     * Defines whether to keep PubSub messages handling in arrival order
+     * or handle messages concurrently.
      * <p>
      * This setting applied only for PubSub messages per channel.
      * <p>
      * Default is <code>true</code>.
-     * 
+     *
      * @param keepPubSubOrder - <code>true</code> if order required, <code>false</code> otherwise.
      * @return config
      */
@@ -571,7 +606,7 @@ public class Config {
     /**
      * Used to switch between {@link io.netty.resolver.dns.DnsAddressResolverGroup} implementations.
      * Switch to round robin {@link io.netty.resolver.dns.RoundRobinDnsAddressResolverGroup} when you need to optimize the url resolving.
-     * 
+     *
      * @param addressResolverGroupFactory
      * @return config
      */
@@ -708,12 +743,12 @@ public class Config {
     }
 
     /**
-     * Defines whether to use Lua-script cache on Redis side. 
+     * Defines whether to use Lua-script cache on Redis side.
      * Most Redisson methods are Lua-script based and this setting turned
      * on could increase speed of such methods execution and save network traffic.
      * <p>
      * Default is <code>false</code>.
-     * 
+     *
      * @param useScriptCache - <code>true</code> if Lua-script caching is required, <code>false</code> otherwise.
      * @return config
      */
@@ -729,14 +764,14 @@ public class Config {
     public int getMinCleanUpDelay() {
         return minCleanUpDelay;
     }
-    
+
     /**
      * Defines minimum delay in seconds for clean up process of expired entries.
      * <p>
      * Applied to JCache, RSetCache, RMapCache, RListMultimapCache, RSetMultimapCache objects.
      * <p>
      * Default is <code>5</code>.
-     * 
+     *
      * @param minCleanUpDelay - delay in seconds
      * @return config
      */
@@ -748,7 +783,7 @@ public class Config {
     public int getMaxCleanUpDelay() {
         return maxCleanUpDelay;
     }
-    
+
     /**
      * Defines maximum delay in seconds for clean up process of expired entries.
      * <p>

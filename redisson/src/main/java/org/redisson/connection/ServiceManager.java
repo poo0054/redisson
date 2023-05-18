@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2013-2022 Nikita Koksharov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -62,9 +62,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
- *
  * @author Nikita Koksharov
- *
  */
 public class ServiceManager {
 
@@ -130,8 +128,10 @@ public class ServiceManager {
     private static final Map<String, String> SHA_CACHE = new LRUCacheMap<>(500, 0, 0);
 
     public ServiceManager(Config cfg) {
+        //打印版本信息
         Version.logVersion();
 
+        //使用EPOLL传输。如果服务器绑定到环回接口，则激活unix套接字。需要在classpath中使用netty-transport-native-epoll lib。
         if (cfg.getTransportMode() == TransportMode.EPOLL) {
             if (cfg.getEventLoopGroup() == null) {
                 this.group = new EpollEventLoopGroup(cfg.getNettyThreads(), new DefaultThreadFactory("redisson-netty"));
@@ -146,6 +146,7 @@ public class ServiceManager {
                 this.resolverGroup = cfg.getAddressResolverGroupFactory().create(EpollDatagramChannel.class, DnsServerAddressStreamProviders.platformDefault());
             }
         } else if (cfg.getTransportMode() == TransportMode.KQUEUE) {
+            //使用KQUEUE传输。类路径需要Netty-transport-native-kqueue Lib。
             if (cfg.getEventLoopGroup() == null) {
                 this.group = new KQueueEventLoopGroup(cfg.getNettyThreads(), new DefaultThreadFactory("redisson-netty"));
             } else {
@@ -159,7 +160,9 @@ public class ServiceManager {
                 this.resolverGroup = cfg.getAddressResolverGroupFactory().create(KQueueDatagramChannel.class, DnsServerAddressStreamProviders.platformDefault());
             }
         } else {
+            //默认的nio
             if (cfg.getEventLoopGroup() == null) {
+                //32个线程的 NioEventLoopGroup
                 this.group = new NioEventLoopGroup(cfg.getNettyThreads(), new DefaultThreadFactory("redisson-netty"));
             } else {
                 this.group = cfg.getEventLoopGroup();
@@ -426,6 +429,7 @@ public class ServiceManager {
     public byte[] generateIdArray() {
         return generateIdArray(16);
     }
+
     public byte[] generateIdArray(int size) {
         byte[] id = new byte[size];
         ThreadLocalRandom.current().nextBytes(id);

@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2013-2022 Nikita Koksharov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
  * to all Redisson objects on top of Redis server.
  *
  * @author Nikita Koksharov
- *
  */
 public class Redisson implements RedissonClient {
 
@@ -64,8 +63,9 @@ public class Redisson implements RedissonClient {
 
     protected Redisson(Config config) {
         this.config = config;
+        //创建需要的config
         Config configCopy = new Config(config);
-
+        //连接管理器
         connectionManager = ConfigSupport.createConnectionManager(configCopy);
         RedissonObjectBuilder objectBuilder = null;
         if (config.isReferenceEnabled()) {
@@ -100,7 +100,7 @@ public class Redisson implements RedissonClient {
     public static RedissonClient create() {
         Config config = new Config();
         config.useSingleServer()
-        .setAddress("redis://127.0.0.1:6379");
+                .setAddress("redis://127.0.0.1:6379");
         return create(config);
     }
 
@@ -381,7 +381,7 @@ public class Redisson implements RedissonClient {
     public RLock getMultiLock(RLock... locks) {
         return new RedissonMultiLock(locks);
     }
-    
+
     @Override
     public RLock getRedLock(RLock... locks) {
         return new RedissonRedLock(locks);
@@ -421,7 +421,7 @@ public class Redisson implements RedissonClient {
     public RScript getScript() {
         return new RedissonScript(commandExecutor);
     }
-    
+
     @Override
     public RScript getScript(Codec codec) {
         return new RedissonScript(commandExecutor, codec);
@@ -572,12 +572,12 @@ public class Redisson implements RedissonClient {
     public <V> RRingBuffer<V> getRingBuffer(String name) {
         return new RedissonRingBuffer<V>(commandExecutor, name, this);
     }
-    
+
     @Override
     public <V> RRingBuffer<V> getRingBuffer(String name, Codec codec) {
         return new RedissonRingBuffer<V>(codec, commandExecutor, name, this);
     }
-    
+
     @Override
     public <V> RBlockingQueue<V> getBlockingQueue(String name) {
         return new RedissonBlockingQueue<V>(commandExecutor, name, this);
@@ -616,7 +616,9 @@ public class Redisson implements RedissonClient {
     @Override
     public <V> RBlockingDeque<V> getBlockingDeque(String name, Codec codec) {
         return new RedissonBlockingDeque<V>(codec, commandExecutor, name, this);
-    };
+    }
+
+    ;
 
     @Override
     public RAtomicLong getAtomicLong(String name) {
