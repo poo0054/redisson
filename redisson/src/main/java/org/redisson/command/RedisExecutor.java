@@ -93,7 +93,6 @@ public class RedisExecutor<V, R> {
                          Object[] params, CompletableFuture<R> mainPromise, boolean ignoreRedirect,
                          ConnectionManager connectionManager, RedissonObjectBuilder objectBuilder,
                          RedissonObjectBuilder.ReferenceType referenceType, boolean noRetry) {
-        super();
         this.readOnlyMode = readOnlyMode;
         this.source = source;
         this.codec = codec;

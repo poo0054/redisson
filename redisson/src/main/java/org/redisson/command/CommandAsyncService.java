@@ -741,6 +741,7 @@ public class CommandAsyncService implements CommandAsyncExecutor {
     @Override
     public <T> RFuture<T> syncedEval(String key, Codec codec, RedisCommand<T> evalCommandType, String script, List<Object> keys, Object... params) {
         CompletionStage<Map<String, String>> replicationFuture = CompletableFuture.completedFuture(Collections.emptyMap());
+        //非单机
         if (!getServiceManager().getConfig().checkSkipSlavesInit()) {
             replicationFuture = writeAsync(key, RedisCommands.INFO_REPLICATION);
         }
@@ -773,6 +774,7 @@ public class CommandAsyncService implements CommandAsyncExecutor {
 
     protected CommandBatchService createCommandBatchService(int availableSlaves) {
         BatchOptions options = BatchOptions.defaults()
+                //跨指定数量的Redis从节点在定义的超时内同步写入操作执行。
                                             .syncSlaves(availableSlaves, 1, TimeUnit.SECONDS);
         return new CommandBatchService(this, options);
     }

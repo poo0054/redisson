@@ -112,7 +112,6 @@ public class PublishSubscribeService {
     private final LockPubSub lockPubSub = new LockPubSub(this);
 
     public PublishSubscribeService(ConnectionManager connectionManager) {
-        super();
         this.connectionManager = connectionManager;
         this.config = connectionManager.getServiceManager().getConfig();
         for (int i = 0; i < locks.length; i++) {

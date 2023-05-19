@@ -167,8 +167,9 @@ public class ServiceManager {
             } else {
                 this.group = cfg.getEventLoopGroup();
             }
-
+            // SocketChannel
             this.socketChannelClass = NioSocketChannel.class;
+            //是否安卓
             if (PlatformDependent.isAndroid()) {
                 this.resolverGroup = DefaultAddressResolverGroup.INSTANCE;
             } else {
@@ -181,6 +182,7 @@ public class ServiceManager {
             if (cfg.getThreads() != 0) {
                 threads = cfg.getThreads();
             }
+            //固定线程池
             executor = Executors.newFixedThreadPool(threads, new DefaultThreadFactory("redisson"));
         } else {
             executor = cfg.getExecutor();

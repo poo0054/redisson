@@ -18,8 +18,8 @@ public class RedissonTest {
 //    public static Logger log = LoggerFactory.getLogger(RedissonTest.class);
 
     public static void main(String[] args) throws InterruptedException {
-        RedissonClient instance = createInstance();
-        RLock lock = instance.getLock("name-lock");
+        RedissonClient redissonClient = createInstance();
+        RLock lock = redissonClient.getLock("name-lock");
         try {
             if (lock.tryLock(1000, 1000, TimeUnit.SECONDS)) {
                 log.info("我锁上了");
@@ -27,6 +27,8 @@ public class RedissonTest {
         } finally {
             lock.unlock();
         }
+
+        lock.lock();
     }
 
     public static Config createConfig() {
@@ -50,6 +52,7 @@ public class RedissonTest {
 
     public static RedissonClient createInstance() {
         Config config = createConfig();
+        //创建 Redisson
         return Redisson.create(config);
     }
 

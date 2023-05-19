@@ -38,7 +38,6 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
     private final PublishSubscribeService service;
 
     PublishSubscribe(PublishSubscribeService service) {
-        super();
         this.service = service;
     }
 

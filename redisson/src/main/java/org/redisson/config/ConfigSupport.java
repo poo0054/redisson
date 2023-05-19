@@ -188,6 +188,7 @@ public class ConfigSupport {
             validate(configCopy.getMasterSlaveServersConfig());
             cm = new MasterSlaveConnectionManager(configCopy.getMasterSlaveServersConfig(), serviceManager);
         } else if (configCopy.getSingleServerConfig() != null) {
+            //单机
             validate(configCopy.getSingleServerConfig());
             cm = new SingleConnectionManager(configCopy.getSingleServerConfig(), serviceManager);
         } else if (configCopy.getSentinelServersConfig() != null) {

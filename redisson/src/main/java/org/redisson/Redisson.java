@@ -67,8 +67,11 @@ public class Redisson implements RedissonClient {
         Config configCopy = new Config(config);
         //连接管理器
         connectionManager = ConfigSupport.createConnectionManager(configCopy);
+
         RedissonObjectBuilder objectBuilder = null;
+        //Config选项指示是否启用了Redisson引用功能。
         if (config.isReferenceEnabled()) {
+            //缓存
             objectBuilder = new RedissonObjectBuilder(this);
         }
         commandExecutor = new CommandAsyncService(connectionManager, objectBuilder, RedissonObjectBuilder.ReferenceType.DEFAULT);
