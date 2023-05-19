@@ -107,6 +107,7 @@ public class CommandAsyncService implements CommandAsyncExecutor {
         }
 
         try {
+            //阻塞等待结果
             return future.toCompletableFuture().get();
         } catch (InterruptedException e) {
             future.cancel(true);

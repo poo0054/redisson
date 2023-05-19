@@ -384,6 +384,7 @@ public class ServiceManager {
 
     public <T> RFuture<T> execute(Supplier<CompletionStage<T>> supplier) {
         CompletableFuture<T> result = new CompletableFuture<>();
+        // 如果retrytrists后无法将Redis命令发送到Redis服务器，则会引发错误。但如果发送成功，则将启动超时
         int retryAttempts = config.getRetryAttempts();
         AtomicInteger attempts = new AtomicInteger(retryAttempts);
         execute(attempts, result, supplier);
@@ -393,22 +394,23 @@ public class ServiceManager {
     private <T> void execute(AtomicInteger attempts, CompletableFuture<T> result, Supplier<CompletionStage<T>> supplier) {
         CompletionStage<T> future = supplier.get();
         future.whenComplete((r, e) -> {
+            //是否有异常
             if (e != null) {
                 if (e.getCause().getMessage().equals("None of slaves were synced")) {
+                    //是否达到最大重试次数
                     if (attempts.decrementAndGet() < 0) {
                         result.completeExceptionally(e);
                         return;
                     }
-
+                    //重试
                     newTimeout(t -> execute(attempts, result, supplier),
                             config.getRetryInterval(), TimeUnit.MILLISECONDS);
                     return;
                 }
-
                 result.completeExceptionally(e);
                 return;
             }
-
+            //正常返回值
             result.complete(r);
         });
     }

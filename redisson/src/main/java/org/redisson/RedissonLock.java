@@ -110,12 +110,12 @@ public class RedissonLock extends RedissonBaseLock {
         try {
             while (true) {
                 ttl = tryAcquire(-1, leaseTime, unit, threadId);
-                // lock acquired
+                // lock acquired 获得锁
                 if (ttl == null) {
                     break;
                 }
 
-                // waiting for message
+                // waiting for message 等待消息
                 if (ttl >= 0) {
                     try {
                         entry.getLatch().tryAcquire(ttl, TimeUnit.MILLISECONDS);
