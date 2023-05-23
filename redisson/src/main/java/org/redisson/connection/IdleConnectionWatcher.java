@@ -49,7 +49,6 @@ public class IdleConnectionWatcher {
 
         public Entry(int minimumAmount, int maximumAmount, Collection<? extends RedisConnection> connections,
                      AsyncSemaphore freeConnectionsCounter, Function<RedisConnection, Boolean> deleteHandler) {
-            super();
             this.minimumAmount = minimumAmount;
             this.maximumAmount = maximumAmount;
             this.connections = connections;
